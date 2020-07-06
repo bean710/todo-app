@@ -1,17 +1,34 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+
+const HelloComponent = () => {
+  return <h2>Hello, world!</h2>;
+}
+
+interface ListItemProp {
+  name: string;
+}
+
+const ListItem = (props: ListItemProp) => {
+  return <li>{props.name}</li>;
+}
+
+interface ListProp {
+  todos: string[];
+}
+
+const TodoList = (props: ListProp) => {
+  const todoNode = props.todos.map((todo) => {
+    return (<ListItem name={todo} key={todo} />);
+  });
+
+  return (<ul>{todoNode}</ul>);
+}
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <HelloComponent />
+    <TodoList todos={["a", "b", "c", "d"]} />
   </React.StrictMode>,
   document.getElementById('root')
 );
-
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
