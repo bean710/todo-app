@@ -1,28 +1,43 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
+interface Todo {
+  value: string;
+  id: number;
+}
+
 const HelloComponent = () => {
   return <h2>Hello, world!</h2>;
 }
 
 interface ListItemProp {
-  name: string;
+  todo: Todo;
+  remove: (id: number) => any;
 }
 
 class ListItem extends Component<ListItemProp, {}> {
   render() {
-    return <li>{this.props.name}</li>;
+    return <li onClick={() => {
+      console.log('Clicked');
+      this.props.remove(this.props.todo.id);
+    }}>{this.props.todo.value}</li>;
   }
 }
 
 interface ListProp {
-  todos: string[];
+  todos: Todo[];
+  remove: (id: number) => any;
 }
 
 class TodoList extends Component<ListProp, {}> {
   render() {
     const todoNode = this.props.todos.map((todo) => {
-      return (<ListItem name={todo} key={todo} />);
+      return (
+      <ListItem
+        todo={todo} 
+        key={todo.id} 
+        remove={this.props.remove}
+       />);
     });
   
     return (<ul>{todoNode}</ul>); 
@@ -31,6 +46,7 @@ class TodoList extends Component<ListProp, {}> {
 
 interface InputProp {
   add: (name: string) => any;
+  remove: (id: number) => any;
 }
 
 class TodoInput extends Component<InputProp, {}> {
@@ -52,10 +68,12 @@ class TodoInput extends Component<InputProp, {}> {
 }
 
 interface TodoAppState {
-  todos: string[];
+  todos: Todo[];
 }
 
 class TodoApp extends Component<{}, TodoAppState> {
+  private inc: number = 0;
+
   constructor(props: any) {
     super(props);
 
@@ -64,15 +82,31 @@ class TodoApp extends Component<{}, TodoAppState> {
 
   addTodo(name: string) {
     this.setState({
-      todos: this.state.todos.concat(name)
+      todos: this.state.todos.concat({
+        value: name,
+        id: this.inc++
+      })
+    });
+  }
+
+  removeTodo(id: number) {
+    const filtered = this.state.todos.filter((todo: Todo) => {
+      if (todo.id !== id) return todo;
+      return false;
+    });
+
+    this.setState({
+      todos: filtered
     });
   }
 
   render() {
     return (
       <div>
-        <TodoInput add={this.addTodo.bind(this)} />
-        <TodoList todos={this.state.todos} />
+        <TodoInput add={this.addTodo.bind(this)} 
+          remove={this.removeTodo.bind(this)} />
+        <TodoList todos={this.state.todos} 
+          remove={this.removeTodo.bind(this)}/>
       </div>
     );
   }
